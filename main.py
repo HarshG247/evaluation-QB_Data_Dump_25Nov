@@ -5,6 +5,7 @@ import pandas as pd
 # Define the directories
 json_folder_path = "assets/json_files"
 csv_folder_path = "assets/csv_files"
+combined_csv_path = "assets/csv_files/combined_output.csv"  # Final combined CSV file
 
 # Ensure the output directory exists
 os.makedirs(csv_folder_path, exist_ok=True)
@@ -20,6 +21,9 @@ def safe_get(dictionary, key, default=""):
         return default
     return default
 
+
+# List to hold data from all files
+combined_data = []
 
 # Process all JSON files in the folder
 for filename in os.listdir(json_folder_path):
@@ -72,11 +76,13 @@ for filename in os.listdir(json_folder_path):
                         return ""
 
                     # Extract clientRef values
-                    exam_category = get_value("clientRef1")
-                    sub_category = get_value("clientRef2")
-                    subject_name = get_value("clientRef3")
-                    chapter_name = get_value("clientRef4")
-                    subtopic_name = f"{get_value('clientRef5')};;{get_value('clientRef6')}"
+
+                    category = get_value("clientRef1")
+                    exam = get_value("clientRef2")
+                    subject = get_value("clientRef3")
+                    topic = get_value("clientRef4")
+                    subtopic = get_value("clientRef5")
+                    chapter_name = get_value("clientRef6")
 
                     # Populate the CSV format
                     format_for_csv = {
@@ -85,11 +91,12 @@ for filename in os.listdir(json_folder_path):
                         "questionType": questionType,
                         "questionOptions": questionOptions,
                         "questionStatus": questionStatus,
-                        "exam_category": exam_category.replace("\n", ""),
-                        "sub_category": sub_category.replace("\n", ""),
-                        "subject_name": subject_name.replace("\n", ""),
-                        "chapter_name": chapter_name.replace("\n", ""),
-                        "subtopic_name": subtopic_name.replace("\n", ""),
+                        "category": category.replace("\n", ""),
+                        "exam": exam.replace("\n", ""),
+                        "subject": subject.replace("\n", ""),
+                        "topic": topic.replace("\n", ""),
+                        "subtopic": subtopic.replace("\n", ""),
+                        "chapter_name": subtopic.replace("\n", ""),
                     }
 
                     # Append cleaned data
@@ -100,10 +107,19 @@ for filename in os.listdir(json_folder_path):
                 except Exception as e:
                     print(f"Line {line_number}: Unexpected error: {e}")
 
-        # Convert data to DataFrame and save to CSV
+        # Convert data to DataFrame and append to combined_data
         if extractedData:
             df = pd.DataFrame(extractedData)
+            combined_data.append(df)
             df.to_csv(csv_file_path, index=False, encoding="utf-8")
             print(f"CSV saved successfully at {csv_file_path}")
         else:
             print(f"No valid data to write for {filename}.")
+
+# Combine all DataFrames into one
+if combined_data:
+    combined_df = pd.concat(combined_data, ignore_index=True)
+    combined_df.to_csv(combined_csv_path, index=False, encoding="utf-8")
+    print(f"All files combined into a single CSV at {combined_csv_path}")
+else:
+    print("No valid data found to combine.")
