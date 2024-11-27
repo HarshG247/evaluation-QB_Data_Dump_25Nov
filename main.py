@@ -3,9 +3,9 @@ import os
 import pandas as pd
 
 # Define the directories
-json_folder_path = "assets/json_files"
-csv_folder_path = "assets/csv_files"
-combined_csv_path = "assets/csv_files/combined_output.csv"  # Final combined CSV file
+json_folder_path = "assets/json_files/questions"
+csv_folder_path = "assets/csv_files/questions"
+combined_csv_path = "assets/csv_files/questions_combined_output.csv"  # Final combined CSV file
 
 # Ensure the output directory exists
 os.makedirs(csv_folder_path, exist_ok=True)
